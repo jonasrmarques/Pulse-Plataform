@@ -132,8 +132,8 @@ O projeto está sendo desenvolvido com foco em:
 **Jonas Marques**  
 Desenvolvedor de Software  
 
-🔗 LinkedIn: *(adicione aqui)*  
-🔗 GitHub: *(adicione aqui)*
+🔗 LinkedIn: *https://www.linkedin.com/in/jonas-rafael-marques/*  
+🔗 GitHub: *https://github.com/jonasrmarques*
 
 ---
 
