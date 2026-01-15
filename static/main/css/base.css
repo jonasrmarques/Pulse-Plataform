@@ -1,0 +1,45 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+
+/**Área da Topbar**/
+.topbar {
+    height: 60px;
+    background: #0f172a;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    justify-content: space-between;
+}
+.btn-login {
+    color: #fff;
+    text-decoration: none;
+    padding: 8px 14px;
+    border: 1px solid #334155;
+    border-radius: 6px;
+}
+/****/
+
+.app-container {
+    display: flex;
+    height: calc(100vh - 60px);
+}
+/**Área da Sidebar**/
+.sidebar {
+    width: 240px;
+    background: #020617;
+    color: #fff;
+    padding: 20px;
+}
+/****/
+
+/**Área do Centro**/
+.content {
+    flex: 1;
+    padding: 32px;
+    background: #f8fafc;
+}
+/****/

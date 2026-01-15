@@ -1,0 +1,29 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Pulse Platform{% endblock %}</title>
+    {% block extra_css %}{% endblock %}
+    <link rel="stylesheet" href="{% static 'main/css/base.css' %}">
+</head>
+<body>
+
+    {% block topbar %}
+        {% include 'main/partials/topbar.html' %}
+    {% endblock %}
+
+    {% block layout %}
+    <div class="app-container">
+        {% include 'main/partials/sidebar.html' %}
+
+        <main class="content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+    {% endblock %}
+
+    <script src="{% static 'main/js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

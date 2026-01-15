@@ -1,0 +1,579 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Home | Pulse{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ===== ANIMAÇÕES ===== */
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== CONTAINER HOME ===== */
+.home-container {
+    position: relative;
+    height: calc(100vh - 64px);
+    overflow: hidden;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+
+    background: radial-gradient(
+        circle at top,
+        #1e293b,
+        #020617 70%
+    );
+
+    color: #f8fafc;
+    padding: 0 24px;
+}
+
+/* ===== CANVAS ===== */
+#particles-canvas {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+
+/* ===== CONTEÚDO ===== */
+.home-container h2,
+.home-container p {
+    position: relative;
+    z-index: 1;
+    animation: fadeUp 0.8s ease forwards;
+}
+
+.home-container p {
+    animation-delay: 0.15s;
+}
+
+/* ===== TEXTO ===== */
+.home-container h2 {
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
+    font-weight: 700;
+    margin-bottom: 16px;
+    letter-spacing: -0.03em;
+}
+
+.home-container p {
+    font-size: 1.15rem;
+    max-width: 520px;
+    color: #cbd5f5;
+    line-height: 1.6;
+}
+
+/* ===== DETALHE VISUAL ===== */
+.home-container::after {
+    content: '';
+    margin-top: 40px;
+    width: 120px;
+    height: 4px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #6366f1, #22d3ee);
+    z-index: 1;
+}
+
+/* ===== MODAL ===== */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(2, 6, 23, 0.75);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal {
+    background: #020617;
+    border-radius: 12px;
+    padding: 32px;
+    width: 100%;
+    max-width: 380px;
+    color: #f8fafc;
+    position: relative;
+
+    animation: fadeUp 0.3s ease;
+}
+
+.modal h3 {
+    margin-bottom: 24px;
+    font-size: 1.5rem;
+}
+
+/* CLOSE */
+.modal-close {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+/* FORM */
+.form-group {
+    margin-bottom: 16px;
+    text-align: left;
+}
+
+.form-group label {
+    font-size: 0.85rem;
+    color: #94a3b8;
+}
+
+.form-group input {
+    width: 100%;
+    margin-top: 6px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #1e293b;
+    background: #020617;
+    color: #f8fafc;
+    font-size: 0.95rem;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #6366f1;
+}
+
+/* SUBMIT */
+.btn-submit {
+    width: 100%;
+    margin-top: 12px;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    background: linear-gradient(90deg, #6366f1, #22d3ee);
+    color: #020617;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: opacity 0.2s;
+}
+
+.btn-submit:hover {
+    opacity: 0.9;
+}
+
+.btn-submit:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ===== MENSAGENS ===== */
+.message {
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+    display: none;
+    animation: fadeUp 0.3s ease;
+}
+
+.message.success {
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.message.error {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* ===== LOADING ===== */
+.loading {
+    display: none;
+    text-align: center;
+    margin: 8px 0;
+    color: #94a3b8;
+    font-size: 0.9rem;
+}
+
+.loading.active {
+    display: block;
+    animation: fadeUp 0.3s ease;
+}
+
+/* ===== LINK EXTRA ===== */
+.login-footer {
+    margin-top: 16px;
+    text-align: center;
+    font-size: 0.85rem;
+    color: #94a3b8;
+}
+
+.login-footer a {
+    color: #6366f1;
+    text-decoration: none;
+}
+
+.login-footer a:hover {
+    text-decoration: underline;
+}
+</style>
+{% endblock %}
+
+{% block layout %}
+<main class="home-container">
+    <canvas id="particles-canvas"></canvas>
+
+    <h2>Bem-vindo à Pulse Platform</h2>
+    <p>Dados que impulsionam decisões.</p>
+</main>
+{% include 'main/modais/login_modal.html' %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const canvas = document.getElementById("particles-canvas");
+const ctx = canvas.getContext("2d");
+
+let particles = [];
+let mouse = { x: null, y: null, radius: 120 };
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
+
+window.addEventListener("mousemove", (e) => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+});
+
+class Particle {
+    constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2 + 0.5;
+        this.speedX = (Math.random() - 0.5) * 0.3;
+        this.speedY = (Math.random() - 0.5) * 0.3;
+    }
+
+    update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+
+        if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+        if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+
+        if (mouse.x && mouse.y) {
+            let dx = this.x - mouse.x;
+            let dy = this.y - mouse.y;
+            let distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < mouse.radius) {
+                this.x += dx / distance;
+                this.y += dy / distance;
+            }
+        }
+    }
+
+    draw() {
+        ctx.fillStyle = "rgba(148,163,184,0.5)";
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+function initParticles(count = 80) {
+    particles = [];
+    for (let i = 0; i < count; i++) {
+        particles.push(new Particle());
+    }
+}
+
+function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+        p.update();
+        p.draw();
+    });
+    requestAnimationFrame(animate);
+}
+
+/* REDUZ MOTION */
+if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    initParticles(window.innerWidth < 768 ? 40 : 80);
+    animate();
+}
+
+// MODAL E LOGIN
+const openModalBtn = document.getElementById("open-login-modal");
+const closeModalBtn = document.getElementById("close-login-modal");
+const modal = document.getElementById("login-modal");
+
+if (openModalBtn && modal && closeModalBtn) {
+    openModalBtn.addEventListener("click", () => {
+        modal.classList.add("active");
+    });
+
+    closeModalBtn.addEventListener("click", () => {
+        modal.classList.remove("active");
+    });
+
+    // Fecha ao clicar fora
+    modal.addEventListener("click", (e) => {
+        if (e.target === modal) {
+            modal.classList.remove("active");
+        }
+    });
+}
+
+// SISTEMA DE LOGIN VIA FETCH
+document.addEventListener('DOMContentLoaded', function() {
+    const loginForm = document.querySelector('#login-modal form');
+    const messageDiv = document.getElementById('login-message');
+    const loadingDiv = document.getElementById('login-loading');
+    const submitBtn = loginForm ? loginForm.querySelector('.btn-submit') : null;
+    
+    // Cria elementos de mensagem e loading se não existirem
+    if (loginForm && !messageDiv) {
+        const msgDiv = document.createElement('div');
+        msgDiv.id = 'login-message';
+        msgDiv.className = 'message';
+        loginForm.insertBefore(msgDiv, loginForm.firstChild);
+    }
+    
+    if (loginForm && !loadingDiv) {
+        const loadDiv = document.createElement('div');
+        loadDiv.id = 'login-loading';
+        loadDiv.className = 'loading';
+        loadDiv.textContent = 'Autenticando...';
+        loginForm.insertBefore(loadDiv, loginForm.querySelector('.btn-submit'));
+    }
+    
+    if (loginForm) {
+        // Adiciona CSRF token se não existir
+        if (!loginForm.querySelector('[name=csrfmiddlewaretoken]')) {
+            const csrfToken = getCSRFToken();
+            if (csrfToken) {
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = 'csrfmiddlewaretoken';
+                csrfInput.value = csrfToken;
+                loginForm.appendChild(csrfInput);
+            }
+        }
+        
+        loginForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const currentMessageDiv = document.getElementById('login-message');
+            const currentLoadingDiv = document.getElementById('login-loading');
+            const currentSubmitBtn = this.querySelector('.btn-submit');
+            
+            // Mostra loading e desabilita botão
+            if (currentLoadingDiv) {
+                currentLoadingDiv.classList.add('active');
+            }
+            if (currentMessageDiv) {
+                currentMessageDiv.style.display = 'none';
+            }
+            if (currentSubmitBtn) {
+                currentSubmitBtn.disabled = true;
+                currentSubmitBtn.textContent = 'Entrando...';
+            }
+            
+            // Coleta os dados do formulário (email e senha)
+            const formData = {
+                email: document.getElementById('email').value.trim(),
+                password: document.getElementById('password').value
+            };
+            
+            // Validação básica
+            if (!formData.email || !formData.password) {
+                hideLoading(currentLoadingDiv, currentSubmitBtn);
+                showMessage('error', 'Por favor, preencha todos os campos.');
+                return;
+            }
+            
+            // Validação de email básica
+            if (!isValidEmail(formData.email)) {
+                hideLoading(currentLoadingDiv, currentSubmitBtn);
+                showMessage('error', 'Por favor, insira um email válido.');
+                return;
+            }
+            
+            try {
+                // Usando caminho relativo
+                const response = await fetch('/api/login/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCSRFToken()
+                    },
+                    body: JSON.stringify(formData),
+                    credentials: 'same-origin'
+                });
+                
+                const data = await response.json();
+                
+                // Restaura botão
+                hideLoading(currentLoadingDiv, currentSubmitBtn);
+                
+                if (response.ok) {
+                    // Login bem-sucedido
+                    showMessage('success', data.message || 'Login realizado com sucesso!');
+                    
+                    // Limpa o formulário
+                    loginForm.reset();
+                    
+                    // Redireciona após 1.5 segundos
+                    setTimeout(() => {
+                        if (data.redirect_url) {
+                            window.location.href = data.redirect_url;
+                        } else {
+                            // URL relativa para dashboard
+                            window.location.href = '/principal-page/';
+                        }
+                    }, 1500);
+                    
+                    // Fecha o modal após 1 segundo
+                    setTimeout(() => {
+                        if (modal) {
+                            modal.classList.remove('active');
+                        }
+                    }, 1000);
+                    
+                } else {
+                    // Erro no login
+                    const errorMessage = data.detail || 
+                                       data.message || 
+                                       data.error || 
+                                       'Erro no login. Verifique suas credenciais.';
+                    showMessage('error', errorMessage);
+                }
+                
+            } catch (error) {
+                // Restaura botão
+                hideLoading(currentLoadingDiv, currentSubmitBtn);
+                
+                // Erro de conexão
+                showMessage('error', 'Erro de conexão. Tente novamente.');
+                console.error('Erro no login:', error);
+            }
+        });
+    }
+    
+    // Função para esconder loading e restaurar botão
+    function hideLoading(loadingDiv, submitBtn) {
+        if (loadingDiv) {
+            loadingDiv.classList.remove('active');
+        }
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Entrar';
+        }
+    }
+    
+    // Função para exibir mensagens
+    function showMessage(type, text) {
+        const messageDiv = document.getElementById('login-message');
+        if (!messageDiv) return;
+        
+        messageDiv.className = `message ${type}`;
+        messageDiv.textContent = text;
+        messageDiv.style.display = 'block';
+        
+        // Auto-remove mensagens de erro após 5 segundos
+        if (type === 'error') {
+            setTimeout(() => {
+                if (messageDiv.style.display === 'block') {
+                    messageDiv.style.display = 'none';
+                }
+            }, 5000);
+        }
+    }
+    
+    // Função para validar email
+    function isValidEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    }
+    
+    // Função para pegar o token CSRF
+    function getCSRFToken() {
+        // Procura primeiro no input hidden (caso Django template tag)
+        const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (csrfInput) {
+            return csrfInput.value;
+        }
+        
+        // Fallback para cookie
+        const cookieValue = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('csrftoken='))
+            ?.split('=')[1];
+        
+        return cookieValue || '';
+    }
+    
+    // Limpa mensagens quando o modal abre
+    if (openModalBtn) {
+        openModalBtn.addEventListener('click', function() {
+            const messageDiv = document.getElementById('login-message');
+            if (messageDiv) {
+                messageDiv.style.display = 'none';
+                messageDiv.className = 'message';
+            }
+            if (loginForm) {
+                loginForm.reset();
+            }
+        });
+    }
+    
+    // Fecha modal com ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal && modal.classList.contains('active')) {
+            modal.classList.remove('active');
+        }
+    });
+    
+    // Validação em tempo real dos campos
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    
+    if (emailInput) {
+        emailInput.addEventListener('input', function() {
+            const messageDiv = document.getElementById('login-message');
+            if (messageDiv && messageDiv.style.display === 'block') {
+                messageDiv.style.display = 'none';
+            }
+        });
+    }
+    
+    if (passwordInput) {
+        passwordInput.addEventListener('input', function() {
+            const messageDiv = document.getElementById('login-message');
+            if (messageDiv && messageDiv.style.display === 'block') {
+                messageDiv.style.display = 'none';
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
