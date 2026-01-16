@@ -16,28 +16,6 @@
     }
 }
 
-/* ===== CONTAINER HOME ===== */
-.home-container {
-    position: relative;
-    height: calc(100vh - 64px);
-    overflow: hidden;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-
-    background: radial-gradient(
-        circle at top,
-        #1e293b,
-        #020617 70%
-    );
-
-    color: #f8fafc;
-    padding: 0 24px;
-}
-
 /* ===== CANVAS ===== */
 #particles-canvas {
     position: absolute;
@@ -46,136 +24,32 @@
 }
 
 /* ===== CONTEÚDO ===== */
-.home-container h2,
-.home-container p {
+.home-content h2,
+.home-content p {
     position: relative;
     z-index: 1;
     animation: fadeUp 0.8s ease forwards;
 }
 
-.home-container p {
+.home-content p {
     animation-delay: 0.15s;
 }
 
-/* ===== TEXTO ===== */
-.home-container h2 {
-    font-size: clamp(2.5rem, 5vw, 3.5rem);
-    font-weight: 700;
-    margin-bottom: 16px;
-    letter-spacing: -0.03em;
-}
-
-.home-container p {
-    font-size: 1.15rem;
-    max-width: 520px;
-    color: #cbd5f5;
-    line-height: 1.6;
+/* ===== HOME CONTAINER ===== */
+.home-container {
+    position: relative;
+    min-height: 100vh;
+    overflow: hidden;
+    background: radial-gradient(circle at top, #1e293b, #020617 70%);
 }
 
 /* ===== DETALHE VISUAL ===== */
-.home-container::after {
-    content: '';
-    margin-top: 40px;
+.gradient-line {
     width: 120px;
     height: 4px;
     border-radius: 999px;
     background: linear-gradient(90deg, #6366f1, #22d3ee);
     z-index: 1;
-}
-
-/* ===== MODAL ===== */
-.modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(2, 6, 23, 0.75);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 50;
-}
-
-.modal-overlay.active {
-    display: flex;
-}
-
-.modal {
-    background: #020617;
-    border-radius: 12px;
-    padding: 32px;
-    width: 100%;
-    max-width: 380px;
-    color: #f8fafc;
-    position: relative;
-
-    animation: fadeUp 0.3s ease;
-}
-
-.modal h3 {
-    margin-bottom: 24px;
-    font-size: 1.5rem;
-}
-
-/* CLOSE */
-.modal-close {
-    position: absolute;
-    top: 12px;
-    right: 14px;
-    background: none;
-    border: none;
-    color: #94a3b8;
-    font-size: 1.5rem;
-    cursor: pointer;
-}
-
-/* FORM */
-.form-group {
-    margin-bottom: 16px;
-    text-align: left;
-}
-
-.form-group label {
-    font-size: 0.85rem;
-    color: #94a3b8;
-}
-
-.form-group input {
-    width: 100%;
-    margin-top: 6px;
-    padding: 10px 12px;
-    border-radius: 8px;
-    border: 1px solid #1e293b;
-    background: #020617;
-    color: #f8fafc;
-    font-size: 0.95rem;
-}
-
-.form-group input:focus {
-    outline: none;
-    border-color: #6366f1;
-}
-
-/* SUBMIT */
-.btn-submit {
-    width: 100%;
-    margin-top: 12px;
-    padding: 10px;
-    border-radius: 8px;
-    border: none;
-    background: linear-gradient(90deg, #6366f1, #22d3ee);
-    color: #020617;
-    font-weight: 600;
-    cursor: pointer;
-    font-size: 0.95rem;
-    transition: opacity 0.2s;
-}
-
-.btn-submit:hover {
-    opacity: 0.9;
-}
-
-.btn-submit:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
 }
 
 /* ===== MENSAGENS ===== */
@@ -214,32 +88,32 @@
     animation: fadeUp 0.3s ease;
 }
 
-/* ===== LINK EXTRA ===== */
-.login-footer {
-    margin-top: 16px;
-    text-align: center;
-    font-size: 0.85rem;
-    color: #94a3b8;
-}
-
-.login-footer a {
-    color: #6366f1;
-    text-decoration: none;
-}
-
-.login-footer a:hover {
-    text-decoration: underline;
+/* ===== TEXTO ===== */
+.lead-custom {
+    color: #cbd5f5 !important;
+    max-width: 520px;
+    line-height: 1.6;
 }
 </style>
 {% endblock %}
 
 {% block layout %}
-<main class="home-container">
+<main class="home-container d-flex align-items-center justify-content-center text-center text-white">
     <canvas id="particles-canvas"></canvas>
-
-    <h2>Bem-vindo à Pulse Platform</h2>
-    <p>Dados que impulsionam decisões.</p>
+    
+    <div class="container position-relative z-1 px-4">
+        <div class="home-content">
+            <h2 class="display-4 fw-bold mb-4">Bem-vindo à Pulse Platform</h2>
+            <p class="lead lead-custom mb-5 mx-auto">
+                Dados que impulsionam decisões.
+            </p>
+            <div class="gradient-line mx-auto"></div>
+            
+        </div>
+    </div>
 </main>
+
+<!-- Modal importado -->
 {% include 'main/modais/login_modal.html' %}
 {% endblock %}
 
@@ -321,50 +195,11 @@ if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
     animate();
 }
 
-// MODAL E LOGIN
-const openModalBtn = document.getElementById("open-login-modal");
-const closeModalBtn = document.getElementById("close-login-modal");
-const modal = document.getElementById("login-modal");
-
-if (openModalBtn && modal && closeModalBtn) {
-    openModalBtn.addEventListener("click", () => {
-        modal.classList.add("active");
-    });
-
-    closeModalBtn.addEventListener("click", () => {
-        modal.classList.remove("active");
-    });
-
-    // Fecha ao clicar fora
-    modal.addEventListener("click", (e) => {
-        if (e.target === modal) {
-            modal.classList.remove("active");
-        }
-    });
-}
-
 // SISTEMA DE LOGIN VIA FETCH
 document.addEventListener('DOMContentLoaded', function() {
-    const loginForm = document.querySelector('#login-modal form');
+    const loginForm = document.getElementById('loginForm');
     const messageDiv = document.getElementById('login-message');
     const loadingDiv = document.getElementById('login-loading');
-    const submitBtn = loginForm ? loginForm.querySelector('.btn-submit') : null;
-    
-    // Cria elementos de mensagem e loading se não existirem
-    if (loginForm && !messageDiv) {
-        const msgDiv = document.createElement('div');
-        msgDiv.id = 'login-message';
-        msgDiv.className = 'message';
-        loginForm.insertBefore(msgDiv, loginForm.firstChild);
-    }
-    
-    if (loginForm && !loadingDiv) {
-        const loadDiv = document.createElement('div');
-        loadDiv.id = 'login-loading';
-        loadDiv.className = 'loading';
-        loadDiv.textContent = 'Autenticando...';
-        loginForm.insertBefore(loadDiv, loginForm.querySelector('.btn-submit'));
-    }
     
     if (loginForm) {
         // Adiciona CSRF token se não existir
@@ -382,23 +217,22 @@ document.addEventListener('DOMContentLoaded', function() {
         loginForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const currentMessageDiv = document.getElementById('login-message');
-            const currentLoadingDiv = document.getElementById('login-loading');
-            const currentSubmitBtn = this.querySelector('.btn-submit');
+            const submitBtn = this.querySelector('button[type="submit"]');
             
             // Mostra loading e desabilita botão
-            if (currentLoadingDiv) {
-                currentLoadingDiv.classList.add('active');
+            if (loadingDiv) {
+                loadingDiv.style.display = 'block';
             }
-            if (currentMessageDiv) {
-                currentMessageDiv.style.display = 'none';
+            if (messageDiv) {
+                messageDiv.style.display = 'none';
+                messageDiv.className = 'alert';
             }
-            if (currentSubmitBtn) {
-                currentSubmitBtn.disabled = true;
-                currentSubmitBtn.textContent = 'Entrando...';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Entrando...';
             }
             
-            // Coleta os dados do formulário (email e senha)
+            // Coleta os dados do formulário
             const formData = {
                 email: document.getElementById('email').value.trim(),
                 password: document.getElementById('password').value
@@ -406,101 +240,80 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Validação básica
             if (!formData.email || !formData.password) {
-                hideLoading(currentLoadingDiv, currentSubmitBtn);
-                showMessage('error', 'Por favor, preencha todos os campos.');
+                hideLoading(loadingDiv, submitBtn);
+                showMessage('Por favor, preencha todos os campos.', 'danger');
                 return;
             }
             
-            // Validação de email básica
+            // Validação de email
             if (!isValidEmail(formData.email)) {
-                hideLoading(currentLoadingDiv, currentSubmitBtn);
-                showMessage('error', 'Por favor, insira um email válido.');
+                hideLoading(loadingDiv, submitBtn);
+                showMessage('Por favor, insira um email válido.', 'danger');
                 return;
             }
             
             try {
-                // Usando caminho relativo
+                // Envia requisição para o endpoint de login
                 const response = await fetch('/api/login/', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCSRFToken()
+                        'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(formData),
-                    credentials: 'same-origin'
+                    body: JSON.stringify(formData)
                 });
+
                 
                 const data = await response.json();
                 
                 // Restaura botão
-                hideLoading(currentLoadingDiv, currentSubmitBtn);
+                hideLoading(loadingDiv, submitBtn);
                 
                 if (response.ok) {
-                    // Login bem-sucedido
-                    showMessage('success', data.message || 'Login realizado com sucesso!');
-                    
-                    // Limpa o formulário
-                    loginForm.reset();
-                    
-                    // Redireciona após 1.5 segundos
-                    setTimeout(() => {
-                        if (data.redirect_url) {
-                            window.location.href = data.redirect_url;
-                        } else {
-                            // URL relativa para dashboard
-                            window.location.href = '/principal-page/';
-                        }
-                    }, 1500);
-                    
-                    // Fecha o modal após 1 segundo
-                    setTimeout(() => {
-                        if (modal) {
-                            modal.classList.remove('active');
-                        }
-                    }, 1000);
-                    
-                } else {
+                    localStorage.setItem('access_token', data.access);
+                    localStorage.setItem('refresh_token', data.refresh);
+
+                    window.location.href = '/principal-page/';
+                }
+                 else {
                     // Erro no login
                     const errorMessage = data.detail || 
                                        data.message || 
                                        data.error || 
                                        'Erro no login. Verifique suas credenciais.';
-                    showMessage('error', errorMessage);
+                    showMessage(errorMessage, 'danger');
                 }
                 
             } catch (error) {
                 // Restaura botão
-                hideLoading(currentLoadingDiv, currentSubmitBtn);
+                hideLoading(loadingDiv, submitBtn);
                 
                 // Erro de conexão
-                showMessage('error', 'Erro de conexão. Tente novamente.');
+                showMessage('Erro de conexão. Tente novamente.', 'danger');
                 console.error('Erro no login:', error);
             }
         });
     }
     
-    // Função para esconder loading e restaurar botão
+    // Funções auxiliares
     function hideLoading(loadingDiv, submitBtn) {
         if (loadingDiv) {
-            loadingDiv.classList.remove('active');
+            loadingDiv.style.display = 'none';
         }
         if (submitBtn) {
             submitBtn.disabled = false;
-            submitBtn.textContent = 'Entrar';
+            submitBtn.innerHTML = 'Entrar';
         }
     }
     
-    // Função para exibir mensagens
-    function showMessage(type, text) {
-        const messageDiv = document.getElementById('login-message');
+    function showMessage(text, type) {
         if (!messageDiv) return;
         
-        messageDiv.className = `message ${type}`;
         messageDiv.textContent = text;
+        messageDiv.className = `alert alert-${type}`;
         messageDiv.style.display = 'block';
         
         // Auto-remove mensagens de erro após 5 segundos
-        if (type === 'error') {
+        if (type === 'danger') {
             setTimeout(() => {
                 if (messageDiv.style.display === 'block') {
                     messageDiv.style.display = 'none';
@@ -509,21 +322,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Função para validar email
     function isValidEmail(email) {
         const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return re.test(email);
     }
     
-    // Função para pegar o token CSRF
     function getCSRFToken() {
-        // Procura primeiro no input hidden (caso Django template tag)
         const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
         if (csrfInput) {
             return csrfInput.value;
         }
         
-        // Fallback para cookie
         const cookieValue = document.cookie
             .split('; ')
             .find(row => row.startsWith('csrftoken='))
@@ -533,12 +342,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Limpa mensagens quando o modal abre
-    if (openModalBtn) {
-        openModalBtn.addEventListener('click', function() {
-            const messageDiv = document.getElementById('login-message');
+    const modalElement = document.getElementById('loginModal');
+    if (modalElement) {
+        modalElement.addEventListener('show.bs.modal', function() {
             if (messageDiv) {
                 messageDiv.style.display = 'none';
-                messageDiv.className = 'message';
+                messageDiv.className = 'alert';
             }
             if (loginForm) {
                 loginForm.reset();
@@ -546,20 +355,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Fecha modal com ESC
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && modal && modal.classList.contains('active')) {
-            modal.classList.remove('active');
-        }
-    });
-    
-    // Validação em tempo real dos campos
+    // Validação em tempo real
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
     
     if (emailInput) {
         emailInput.addEventListener('input', function() {
-            const messageDiv = document.getElementById('login-message');
             if (messageDiv && messageDiv.style.display === 'block') {
                 messageDiv.style.display = 'none';
             }
@@ -568,7 +369,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (passwordInput) {
         passwordInput.addEventListener('input', function() {
-            const messageDiv = document.getElementById('login-message');
             if (messageDiv && messageDiv.style.display === 'block') {
                 messageDiv.style.display = 'none';
             }

@@ -1,0 +1,435 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Pessoas{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Big Numbers - Estilo Minimalista */
+.big-numbers-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.big-number-card {
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.big-number-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.big-number {
+    font-size: 2.5rem;
+    font-weight: 300;
+    color: #2c3e50;
+    margin: 10px 0 5px;
+    line-height: 1;
+}
+
+.big-number-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Cores específicas para cada card */
+.big-number-card:nth-child(1) {
+    border-top: 3px solid #3498db;
+}
+
+.big-number-card:nth-child(2) {
+    border-top: 3px solid #2ecc71;
+}
+
+.big-number-card:nth-child(3) {
+    border-top: 3px solid #e74c3c;
+}
+
+/* Container principal da página */
+.container-fluid {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0; /* Importante para containers flex */
+}
+
+/* Estilos para o AG Grid - CORRIGIDOS */
+.grid-container-wrapper {
+    flex: 1;
+    min-height: 0; /* Crucial para o AG Grid não expandir infinitamente */
+    display: flex;
+    flex-direction: column;
+}
+
+.responsive-grid-container {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Previne vazamento */
+}
+
+#usersGrid {
+    width: 100% !important;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden; /* Importante */
+}
+
+/* Ajustes para telas menores */
+@media (max-width: 768px) {
+    .big-numbers-container {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .big-number-card {
+        padding: 15px;
+    }
+    
+    .big-number {
+        font-size: 2rem;
+    }
+    
+    .container-fluid {
+        padding: 0 10px;
+    }
+    
+    h2 {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .big-number {
+        font-size: 1.75rem;
+    }
+    
+    /* Ajusta tamanho das colunas para telas pequenas */
+    .ag-header-cell-label {
+        font-size: 12px;
+    }
+    
+    .ag-cell {
+        font-size: 12px;
+        padding: 4px !important;
+    }
+    
+    .badge {
+        font-size: 11px;
+        padding: 2px 5px;
+    }
+}
+
+/* Ajusta o card para telas menores */
+.card {
+    overflow: hidden;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.card-body {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Melhora a paginação para telas menores */
+.ag-paging-panel {
+    padding: 8px 4px !important;
+    font-size: 12px;
+}
+
+.ag-paging-page-summary-panel {
+    flex-wrap: wrap;
+}
+
+/* Ajuste para garantir que o grid não expanda demais */
+.ag-root-wrapper {
+    flex: 1;
+    min-height: 0;
+}
+
+/* Ajusta o botão de tamanho da página na paginação */
+.ag-paging-page-size {
+    margin: 5px 0;
+}
+
+/* Ajustes específicos para o layout da base */
+.content {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden; /* Adicionado */
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Pessoas</h2>
+    </div>
+
+    <!-- Big Numbers Section -->
+    <div class="big-numbers-container" id="bigNumbers">
+        <div class="big-number-card">
+            <div class="big-number-label">Total de Usuários</div>
+            <div class="big-number" id="totalUsers">0</div>
+        </div>
+        <div class="big-number-card">
+            <div class="big-number-label">Usuários Ativos</div>
+            <div class="big-number" id="activeUsers">0</div>
+        </div>
+        <div class="big-number-card">
+            <div class="big-number-label">Usuários Inativos</div>
+            <div class="big-number" id="inactiveUsers">0</div>
+        </div>
+    </div>
+
+    <!-- Grid Section -->
+    <div class="grid-container-wrapper">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-0 responsive-grid-container">
+                <div
+                    id="usersGrid"
+                    class="ag-theme-alpine"
+                ></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- AG Grid Community -->
+<script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Função para calcular e exibir os big numbers
+    function updateBigNumbers(data) {
+        const users = data.results || data;
+        
+        const totalUsers = users.length;
+        const activeUsers = users.filter(user => user.is_active).length;
+        const inactiveUsers = totalUsers - activeUsers;
+        
+        document.getElementById('totalUsers').textContent = totalUsers;
+        document.getElementById('activeUsers').textContent = activeUsers;
+        document.getElementById('inactiveUsers').textContent = inactiveUsers;
+    }
+
+    const isMobile = window.innerWidth < 768;
+    
+    const columnDefs = [
+        { 
+            headerName: "ID", 
+            field: "id", 
+            width: isMobile ? 60 : 90,
+            suppressSizeToFit: !isMobile
+        },
+        { 
+            headerName: "Name", 
+            field: "name", 
+            flex: 1,
+            minWidth: isMobile ? 100 : 150
+        },
+        { 
+            headerName: "Email", 
+            field: "email", 
+            flex: 1,
+            minWidth: isMobile ? 150 : 200,
+            cellRenderer: isMobile ? 
+                (params) => params.value ? 
+                    `<span title="${params.value}">${params.value.substring(0, 20)}${params.value.length > 20 ? '...' : ''}</span>` 
+                    : '' 
+                : null
+        },
+        {
+            headerName: "Active",
+            field: "is_active",
+            width: isMobile ? 80 : 100,
+            cellRenderer: (params) =>
+                params.value
+                    ? '<span class="badge bg-success">Yes</span>'
+                    : '<span class="badge bg-danger">No</span>'
+        },
+        {
+            headerName: "Staff",
+            field: "is_staff",
+            width: isMobile ? 80 : 100,
+            cellRenderer: (params) =>
+                params.value
+                    ? '<span class="badge bg-primary">Yes</span>'
+                    : '<span class="badge bg-secondary">No</span>'
+        },
+        { 
+            headerName: "Joined", 
+            field: "date_joined", 
+            width: isMobile ? 100 : 130,
+            cellRenderer: isMobile ? 
+                (params) => params.value ? params.value.substring(5) : '' 
+                : null
+        }
+    ];
+
+    const gridOptions = {
+        columnDefs,
+        rowModelType: 'infinite',
+        cacheBlockSize: isMobile ? 30 : 50,
+        maxBlocksInCache: 2,
+        pagination: false,
+        defaultColDef: {
+            sortable: true,
+            filter: !isMobile,
+            resizable: !isMobile,
+            suppressSizeToFit: isMobile,
+            wrapHeaderText: true,
+            autoHeaderHeight: true
+        },
+        rowHeight: isMobile ? 40 : 45,
+        headerHeight: isMobile ? 35 : 40,
+        // Corrige o tamanho do grid
+        domLayout: 'normal',
+        // Configuração importante para o tamanho
+        onGridReady: (params) => {
+            params.api.sizeColumnsToFit();
+            // Força o redimensionamento após um pequeno delay
+            setTimeout(() => {
+                params.api.sizeColumnsToFit();
+            }, 50);
+        },
+        onFirstDataRendered: (params) => {
+            params.api.sizeColumnsToFit();
+        },
+        onGridSizeChanged: (params) => {
+            params.api.sizeColumnsToFit();
+        },
+        datasource: {
+            getRows: function(params) {
+                const pageSize = isMobile ? 30 : 50;
+                const page = Math.floor(params.startRow / pageSize) + 1;
+                
+                fetch(`/api-users/users/?page=${page}&page_size=${pageSize}`, {
+                    credentials: "same-origin",
+                    headers: { "Accept": "application/json" }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Erro ao carregar usuários");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const rowsThisPage = data.results || data;
+                    let lastRow = -1;
+                    
+                    
+                    
+                    if (params.startRow === 0) {
+                        updateBigNumbers(data);
+                    }
+                    
+                    if (rowsThisPage.length < pageSize) {
+                        lastRow = params.startRow + rowsThisPage.length;
+                    }
+                    
+                    params.successCallback(rowsThisPage, lastRow);
+                })
+                .catch(error => {
+                    console.error(error);
+                    params.failCallback();
+                });
+            }
+        }
+    };
+
+    const gridDiv = document.querySelector("#usersGrid");
+    
+    // Função para calcular altura dinâmica baseada na tela disponível
+    function calculateGridHeight() {
+        const headerHeight = 60; // altura da topbar
+        const pageHeaderHeight = document.querySelector('.d-flex.justify-content-between')?.offsetHeight || 120;
+        const bigNumbersHeight = document.querySelector('.big-numbers-container')?.offsetHeight || 150;
+        const gridHeaderHeight = 60;
+        const paginationHeight = 40;
+        const margins = 40;
+        
+        const availableHeight = window.innerHeight - 
+                              headerHeight - 
+                              pageHeaderHeight - 
+                              bigNumbersHeight - 
+                              gridHeaderHeight - 
+                              paginationHeight - 
+                              margins;
+        
+        // Altura mínima e máxima
+        const minHeight = 300;
+        const maxHeight = 800;
+        
+        return Math.max(minHeight, Math.min(availableHeight, maxHeight));
+    }
+    
+    function updateGridHeight() {
+        const newHeight = calculateGridHeight();
+        gridDiv.style.height = `${newHeight}px`;
+        
+        if (gridOptions.api) {
+            setTimeout(() => {
+                gridOptions.api.sizeColumnsToFit();
+            }, 100);
+        }
+    }
+    
+    const gridApi = agGrid.createGrid(gridDiv, gridOptions);
+
+    // Inicializa os big numbers
+    fetch(`/api-users/users/?page=1&page_size=10`, {
+        credentials: "same-origin",
+        headers: { "Accept": "application/json" }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Erro ao carregar dados iniciais");
+        }
+        return response.json();
+    })
+    .then(data => {
+        updateBigNumbers(data);
+        // Atualiza altura após carregar dados
+        setTimeout(updateGridHeight, 100);
+    })
+    .catch(error => {
+        console.error("Erro ao carregar big numbers:", error);
+    });
+
+    // Configura altura inicial
+    setTimeout(updateGridHeight, 100);
+    
+    // Redimensiona quando a janela muda de tamanho
+    let resizeTimer;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            updateGridHeight();
+        }, 250);
+    });
+
+    gridApi.setGridOption('datasource', gridOptions.datasource);
+
+});
+</script>
+{% endblock %}

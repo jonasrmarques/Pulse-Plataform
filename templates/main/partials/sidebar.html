@@ -1,9 +1,27 @@
-<aside class="sidebar">
+<aside class="sidebar" id="sidebar">
     <nav>
         <ul>
-            <li><a href="#">Home</a></li>
-            <li><a href="#">People</a></li>
-            <li><a href="#">Finance</a></li>
+            <li>
+                <a href="{% url 'principal-page' %}">
+                    <span class="icon">🏠</span>
+                    <span class="link-text">Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'users-page' %}">
+                    <span class="icon">👥</span>
+                    <span class="link-text">People</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <span class="icon">📊</span>
+                    <span class="link-text">Dashboards</span>
+                </a>
+            </li>
         </ul>
     </nav>
+    <button class="toggle-btn" id="toggleSidebar">
+        <span class="toggle-icon"></span>
+    </button>
 </aside>

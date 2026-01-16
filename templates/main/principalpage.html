@@ -1,5 +1,728 @@
 {% extends 'main/base.html' %}
 
-{%block content%}
-<h1>Eu estou aqui</h1>
-{%endblock%}
+{% block extra_css %}
+<style>
+    /* Container principal que limita os elementos gráficos à área de conteúdo */
+    .content-wrapper {
+        position: relative;
+        min-height: calc(100vh - 120px); /* Ajuste conforme altura da topbar */
+        background: #ffffff; /* Fundo branco da área de conteúdo */
+        overflow: hidden; /* Para conter os elementos gráficos */
+    }
+
+    .welcome-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100%;
+        padding: 40px 20px;
+        position: relative;
+        z-index: 10;
+    }
+
+    .welcome-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 56px;
+        border-radius: 24px;
+        max-width: 600px;
+        width: 100%;
+        text-align: center;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08), 0 8px 16px rgba(0, 0, 0, 0.04);
+        animation: fadeUp 0.8s ease;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .welcome-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #6366f1, #22d3ee, #10b981, #f59e0b);
+        animation: shimmer 3s infinite;
+    }
+
+    .welcome-card h1 {
+        font-size: 38px;
+        margin-bottom: 20px;
+        color: #1e293b; /* Texto mais escuro */
+        font-weight: 700;
+    }
+
+    .welcome-card p {
+        font-size: 17px;
+        color: #475569; /* Texto mais escuro para melhor contraste */
+        margin-bottom: 40px;
+        line-height: 1.7;
+    }
+
+    .welcome-actions {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        flex-wrap: wrap;
+        position: relative;
+        z-index: 2;
+    }
+
+    .welcome-btn {
+        padding: 16px 32px;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 16px;
+        position: relative;
+        overflow: hidden;
+        border: none;
+        cursor: pointer;
+    }
+
+    .welcome-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.7s;
+    }
+
+    .welcome-btn:hover::before {
+        left: 100%;
+    }
+
+    .welcome-btn.primary {
+        background: linear-gradient(90deg, #6366f1, #22d3ee);
+        color: #ffffff; /* Texto branco para contraste */
+    }
+
+    .welcome-btn.secondary {
+        background: linear-gradient(90deg, #475569, #1e293b);
+        color: #ffffff; /* Texto branco para contraste */
+    }
+
+    .welcome-btn:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    @keyframes fadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(40px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes shimmer {
+        0% { background-position: -200px 0; }
+        100% { background-position: calc(200px + 100%) 0; }
+    }
+
+    /* Gráficos decorativos - SEM LINHAS QUADRICULADAS */
+    .graphics-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        pointer-events: none;
+        overflow: hidden;
+    }
+
+    .graphic {
+        position: absolute;
+        opacity: 0.25; /* Visível mas sutil */
+    }
+
+    .bar-chart {
+        bottom: 10%;
+        left: 5%;
+        width: 140px;
+        height: 70px;
+        display: flex;
+        align-items: flex-end;
+        gap: 10px;
+    }
+
+    .bar {
+        width: 14px;
+        background: linear-gradient(to top, #6366f1, #8b5cf6, #22d3ee);
+        border-radius: 6px 6px 0 0;
+        animation: barGrow 3s ease infinite alternate;
+        box-shadow: 0 4px 8px rgba(99, 102, 241, 0.2);
+    }
+
+    .bar:nth-child(1) { height: 30px; animation-delay: 0s; background: linear-gradient(to top, #6366f1, #8b5cf6); }
+    .bar:nth-child(2) { height: 45px; animation-delay: 0.2s; background: linear-gradient(to top, #8b5cf6, #a78bfa); }
+    .bar:nth-child(3) { height: 60px; animation-delay: 0.4s; background: linear-gradient(to top, #a78bfa, #22d3ee); }
+    .bar:nth-child(4) { height: 35px; animation-delay: 0.6s; background: linear-gradient(to top, #22d3ee, #06b6d4); }
+    .bar:nth-child(5) { height: 50px; animation-delay: 0.8s; background: linear-gradient(to top, #06b6d4, #0ea5e9); }
+
+    .pie-chart {
+        top: 15%;
+        right: 8%;
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: conic-gradient(
+            #6366f1 0deg 120deg, 
+            #8b5cf6 120deg 180deg,
+            #a78bfa 180deg 240deg, 
+            #22d3ee 240deg 300deg,
+            #06b6d4 300deg 360deg
+        );
+        animation: rotatePie 20s linear infinite;
+        box-shadow: 0 8px 16px rgba(99, 102, 241, 0.15);
+        border: 3px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .pie-chart::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 40px;
+        height: 40px;
+        background: white;
+        border-radius: 50%;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .line-graph {
+        top: 40%;
+        left: 10%;
+        width: 180px;
+        height: 90px;
+    }
+
+    .line-path {
+        fill: none;
+        stroke: url(#lineGradient);
+        stroke-width: 4;
+        stroke-linecap: round;
+        stroke-dasharray: 1000;
+        stroke-dashoffset: 1000;
+        animation: drawLine 8s ease-in-out infinite;
+        filter: drop-shadow(0 4px 8px rgba(99, 102, 241, 0.2));
+    }
+
+    .data-point {
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        background: #6366f1;
+        border-radius: 50%;
+        animation: pulsePoint 4s ease-in-out infinite;
+        opacity: 0.3;
+        box-shadow: 0 4px 8px rgba(99, 102, 241, 0.3);
+        border: 2px solid rgba(255, 255, 255, 0.5);
+    }
+
+    .data-point:nth-child(1) { 
+        top: 20%; 
+        left: 15%; 
+        animation-delay: 0s; 
+        background: #6366f1;
+    }
+    .data-point:nth-child(2) { 
+        top: 60%; 
+        right: 20%; 
+        animation-delay: 0.5s; 
+        background: #8b5cf6;
+    }
+    .data-point:nth-child(3) { 
+        top: 30%; 
+        right: 30%; 
+        animation-delay: 1s; 
+        background: #22d3ee;
+    }
+    .data-point:nth-child(4) { 
+        bottom: 25%; 
+        left: 25%; 
+        animation-delay: 1.5s; 
+        background: #10b981;
+    }
+    .data-point:nth-child(5) { 
+        bottom: 40%; 
+        right: 15%; 
+        animation-delay: 2s; 
+        background: #f59e0b;
+    }
+
+    .floating-shapes {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+    }
+
+    .shape {
+        position: absolute;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(99, 102, 241, 0) 70%);
+        animation: float 20s infinite ease-in-out;
+        opacity: 0.4;
+    }
+
+    .shape:nth-child(1) {
+        width: 250px;
+        height: 250px;
+        top: -75px;
+        left: -75px;
+        animation-delay: 0s;
+        background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, rgba(99, 102, 241, 0) 70%);
+    }
+
+    .shape:nth-child(2) {
+        width: 200px;
+        height: 200px;
+        bottom: -60px;
+        right: -60px;
+        animation-delay: 10s;
+        background: radial-gradient(circle, rgba(34, 211, 238, 0.15) 0%, rgba(34, 211, 238, 0) 70%);
+    }
+
+    /* Gráfico de onda */
+    .wave-chart {
+        position: absolute;
+        bottom: 20%;
+        right: 15%;
+        width: 120px;
+        height: 60px;
+        opacity: 0.3;
+    }
+
+    .wave-path {
+        fill: none;
+        stroke: url(#waveGradient);
+        stroke-width: 3;
+        stroke-linecap: round;
+        animation: wave 6s ease-in-out infinite;
+    }
+
+    @keyframes barGrow {
+        from { 
+            height: 15px; 
+            opacity: 0.6; 
+            transform: translateY(5px);
+        }
+        to { 
+            height: var(--target-height); 
+            opacity: 1; 
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes rotatePie {
+        from { transform: rotate(0deg) scale(1); }
+        50% { transform: rotate(180deg) scale(1.05); }
+        to { transform: rotate(360deg) scale(1); }
+    }
+
+    @keyframes drawLine {
+        0% { 
+            stroke-dashoffset: 1000; 
+            stroke-opacity: 0.6;
+        }
+        50% { 
+            stroke-dashoffset: 0; 
+            stroke-opacity: 1;
+        }
+        100% { 
+            stroke-dashoffset: 1000; 
+            stroke-opacity: 0.6;
+        }
+    }
+
+    @keyframes pulsePoint {
+        0%, 100% { 
+            transform: scale(1); 
+            opacity: 0.2; 
+            box-shadow: 0 0 0 rgba(99, 102, 241, 0.4);
+        }
+        50% { 
+            transform: scale(1.5); 
+            opacity: 0.5; 
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.6);
+        }
+    }
+
+    @keyframes float {
+        0%, 100% { 
+            transform: translate(0, 0) rotate(0deg) scale(1); 
+            opacity: 0.3;
+        }
+        33% { 
+            transform: translate(25px, 25px) rotate(120deg) scale(1.05); 
+            opacity: 0.4;
+        }
+        66% { 
+            transform: translate(-20px, 30px) rotate(240deg) scale(0.95); 
+            opacity: 0.3;
+        }
+    }
+
+    @keyframes wave {
+        0%, 100% { 
+            transform: translateX(0) scaleY(1);
+        }
+        50% { 
+            transform: translateX(-20px) scaleY(1.2);
+        }
+    }
+
+    /* REMOVIDO: Grid decorativo quadriculado */
+
+    /* Conexões entre pontos */
+    .connection-line {
+        position: absolute;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.3), transparent);
+        transform-origin: left center;
+        z-index: 0;
+        opacity: 0.15;
+    }
+
+    /* Animações adicionais para gráficos */
+    .graphic-circle {
+        position: absolute;
+        width: 60px;
+        height: 60px;
+        border: 3px dashed rgba(99, 102, 241, 0.3);
+        border-radius: 50%;
+        animation: spinCircle 15s linear infinite;
+    }
+
+    .graphic-circle:nth-child(1) {
+        top: 25%;
+        left: 20%;
+    }
+
+    .graphic-circle:nth-child(2) {
+        bottom: 30%;
+        right: 25%;
+        animation-direction: reverse;
+        border-color: rgba(34, 211, 238, 0.3);
+    }
+
+    @keyframes spinCircle {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+        .welcome-card {
+            padding: 40px 24px;
+        }
+
+        .welcome-card h1 {
+            font-size: 32px;
+        }
+
+        .welcome-card p {
+            font-size: 16px;
+        }
+
+        .welcome-actions {
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .graphic {
+            transform: scale(0.7);
+            opacity: 0.2;
+        }
+
+        .bar-chart { left: 2%; }
+        .pie-chart { right: 2%; }
+        .line-graph { left: 5%; }
+        .graphic-circle { display: none; }
+    }
+
+    @media (max-width: 480px) {
+        .welcome-card {
+            padding: 32px 20px;
+        }
+
+        .welcome-card h1 {
+            font-size: 28px;
+        }
+
+        .graphic {
+            opacity: 0.15;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Container principal que limita os elementos gráficos à área de conteúdo -->
+<div class="content-wrapper">
+    <!-- REMOVIDO: Grid decorativo quadriculado -->
+    
+    <!-- Elementos gráficos decorativos - APENAS GRÁFICOS -->
+    <div class="graphics-container">
+        <div class="floating-shapes">
+            <div class="shape"></div>
+            <div class="shape"></div>
+        </div>
+
+        <!-- Gráficos circulares -->
+        <div class="graphic-circle"></div>
+        <div class="graphic-circle"></div>
+
+        <!-- Gráfico de barras -->
+        <div class="graphic bar-chart">
+            <div class="bar" style="--target-height: 30px;"></div>
+            <div class="bar" style="--target-height: 45px;"></div>
+            <div class="bar" style="--target-height: 60px;"></div>
+            <div class="bar" style="--target-height: 35px;"></div>
+            <div class="bar" style="--target-height: 50px;"></div>
+        </div>
+
+        <!-- Gráfico de pizza -->
+        <div class="graphic pie-chart"></div>
+
+        <!-- Gráfico de linhas -->
+        <div class="graphic line-graph">
+            <svg width="180" height="90" viewBox="0 0 180 90">
+                <defs>
+                    <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#6366f1" />
+                        <stop offset="50%" stop-color="#8b5cf6" />
+                        <stop offset="100%" stop-color="#22d3ee" />
+                    </linearGradient>
+                </defs>
+                <path class="line-path" d="M0,70 C20,50 40,80 60,40 C80,20 100,60 120,30 C140,10 160,50 180,30" />
+            </svg>
+        </div>
+
+        <!-- Gráfico de onda -->
+        <div class="graphic wave-chart">
+            <svg width="120" height="60" viewBox="0 0 120 60">
+                <defs>
+                    <linearGradient id="waveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#10b981" />
+                        <stop offset="100%" stop-color="#22d3ee" />
+                    </linearGradient>
+                </defs>
+                <path class="wave-path" d="M0,30 Q15,10 30,30 T60,30 T90,30 T120,30" />
+            </svg>
+        </div>
+
+        <!-- Pontos de dados flutuantes -->
+        <div class="data-point"></div>
+        <div class="data-point"></div>
+        <div class="data-point"></div>
+        <div class="data-point"></div>
+        <div class="data-point"></div>
+    </div>
+
+    <!-- Conteúdo principal -->
+    <div class="welcome-container">
+        <div class="welcome-card">
+            <h1>Bem-vindo(a)!</h1>
+            <p>
+                Este é o painel principal do sistema.
+                Aqui você pode gerenciar pessoas, acompanhar informações importantes
+                e acessar seus dashboards de forma rápida e organizada.
+            </p>
+
+            <div class="welcome-actions">
+                <a href="{% url 'users-page' %}" class="welcome-btn primary">
+                    👥 Gerenciar Pessoas
+                </a>
+
+                <a href="#" class="welcome-btn secondary">
+                    📊 Dashboards
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('Painel visual com apenas gráficos decorativos carregado ✨');
+
+        // Efeito de partículas interativas
+        const container = document.querySelector('.graphics-container');
+        
+        // Criar partículas flutuantes
+        for (let i = 0; i < 15; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'data-point';
+            const colors = ['#6366f1', '#8b5cf6', '#22d3ee', '#10b981', '#f59e0b'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            particle.style.cssText = `
+                width: ${Math.random() * 8 + 6}px;
+                height: ${Math.random() * 8 + 6}px;
+                left: ${Math.random() * 90 + 5}%;
+                top: ${Math.random() * 90 + 5}%;
+                animation-delay: ${Math.random() * 5}s;
+                background: ${randomColor};
+                opacity: ${Math.random() * 0.25 + 0.15};
+                border: 2px solid rgba(255, 255, 255, 0.3);
+                box-shadow: 0 4px 12px ${randomColor}40;
+            `;
+            container.appendChild(particle);
+        }
+
+        // Criar linhas de conexão entre pontos (opcional)
+        setTimeout(() => {
+            createConnectionLines();
+        }, 1000);
+
+        function createConnectionLines() {
+            const points = document.querySelectorAll('.data-point');
+            
+            for (let i = 0; i < points.length - 1; i++) {
+                for (let j = i + 1; j < points.length; j++) {
+                    // Conectar apenas pontos próximos
+                    const rect1 = points[i].getBoundingClientRect();
+                    const rect2 = points[j].getBoundingClientRect();
+                    
+                    const dx = rect2.left - rect1.left;
+                    const dy = rect2.top - rect1.top;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    // Apenas criar conexões para pontos próximos (menos de 200px)
+                    if (distance < 200 && Math.random() > 0.8) {
+                        const line = document.createElement('div');
+                        line.className = 'connection-line';
+                        
+                        const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+                        
+                        line.style.cssText = `
+                            top: ${rect1.top + rect1.height/2}px;
+                            left: ${rect1.left + rect1.width/2}px;
+                            width: ${distance}px;
+                            transform: rotate(${angle}deg);
+                            opacity: ${0.1 + Math.random() * 0.1};
+                        `;
+                        
+                        container.appendChild(line);
+                        
+                        // Remover linha após um tempo
+                        setTimeout(() => {
+                            if (line.parentNode) {
+                                line.style.transition = 'opacity 2s';
+                                line.style.opacity = '0';
+                                setTimeout(() => {
+                                    if (line.parentNode) {
+                                        line.remove();
+                                    }
+                                }, 2000);
+                            }
+                        }, 5000 + Math.random() * 5000);
+                    }
+                }
+            }
+        }
+
+        // Recriar conexões periodicamente
+        setInterval(createConnectionLines, 8000);
+
+        // Efeito de interação com o mouse
+        let mouseX = 0;
+        let mouseY = 0;
+
+        const contentWrapper = document.querySelector('.content-wrapper');
+        
+        contentWrapper.addEventListener('mousemove', (e) => {
+            const rect = contentWrapper.getBoundingClientRect();
+            mouseX = (e.clientX - rect.left) / rect.width;
+            mouseY = (e.clientY - rect.top) / rect.height;
+            
+            // Movimento parallax suave nos gráficos
+            const graphics = document.querySelectorAll('.graphic');
+            graphics.forEach((graphic, index) => {
+                const speed = 0.4 + index * 0.15;
+                const x = (mouseX - 0.5) * 20 * speed;
+                const y = (mouseY - 0.5) * 20 * speed;
+                
+                graphic.style.transform = `translate(${x}px, ${y}px)`;
+            });
+
+            // Efeito sutil nos pontos de dados
+            const points = document.querySelectorAll('.data-point');
+            points.forEach((point, index) => {
+                const speed = 0.2 + index * 0.02;
+                const x = (mouseX - 0.5) * 10 * speed;
+                const y = (mouseY - 0.5) * 10 * speed;
+                
+                point.style.transform = `translate(${x}px, ${y}px) scale(${1 + Math.abs(mouseX - 0.5) * 0.1})`;
+            });
+        });
+
+        // Efeito de brilho nos botões
+        const buttons = document.querySelectorAll('.welcome-btn');
+        buttons.forEach(button => {
+            button.addEventListener('mouseenter', (e) => {
+                const ripple = document.createElement('span');
+                ripple.style.cssText = `
+                    position: absolute;
+                    background: rgba(255, 255, 255, 0.4);
+                    border-radius: 50%;
+                    transform: scale(0);
+                    animation: ripple 0.6s linear;
+                `;
+                
+                const size = Math.max(button.offsetWidth, button.offsetHeight);
+                const x = e.offsetX - size / 2;
+                const y = e.offsetY - size / 2;
+                
+                ripple.style.width = ripple.style.height = `${size}px`;
+                ripple.style.left = `${x}px`;
+                ripple.style.top = `${y}px`;
+                
+                button.appendChild(ripple);
+                
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+
+        // Efeito de brilho intermitente nos gráficos
+        setInterval(() => {
+            const bars = document.querySelectorAll('.bar');
+            if (bars.length > 0) {
+                const randomBar = bars[Math.floor(Math.random() * bars.length)];
+                randomBar.style.filter = 'brightness(1.5)';
+                setTimeout(() => {
+                    randomBar.style.filter = 'brightness(1)';
+                }, 300);
+            }
+        }, 3000);
+
+        // Adicionar estilos para animação de ripple
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    });
+</script>
+{% endblock %}

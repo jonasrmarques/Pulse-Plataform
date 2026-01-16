@@ -5,6 +5,12 @@ from django.urls import path, include #Por padrão é necessário importar o inc
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    
+    #Views de Main
     path('', include('main.urls')),
     path("api/", include("main.api.urls")),
+    
+    #Views de Users
+    path('users/', include('users.urls')),
+    path("api-users/", include("users.api.urls")),
 ]

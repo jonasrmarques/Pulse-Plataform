@@ -1,8 +1,8 @@
 body {
     margin: 0;
     font-family: Arial, sans-serif;
+    transition: margin-left 0.3s ease;
 }
-
 
 /**Área da Topbar**/
 .topbar {
@@ -13,33 +13,230 @@ body {
     align-items: center;
     padding: 0 24px;
     justify-content: space-between;
+    transition: margin-left 0.3s ease;
 }
-.btn-login {
-    color: #fff;
-    text-decoration: none;
-    padding: 8px 14px;
-    border: 1px solid #334155;
-    border-radius: 6px;
-}
-/****/
+
 
 .app-container {
     display: flex;
     height: calc(100vh - 60px);
+    transition: margin-left 0.3s ease;
 }
-/**Área da Sidebar**/
+
+
 .sidebar {
     width: 240px;
     background: #020617;
     color: #fff;
-    padding: 20px;
+    padding: 20px 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    height: 100%;
+    overflow-x: hidden;
+    flex-shrink: 0;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
 }
-/****/
+
+
+.sidebar.collapsed {
+    width: 70px;
+    padding: 20px 0;
+}
+
+.toggle-icon {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-right: 2px solid #e2e8f0;
+    border-bottom: 2px solid #e2e8f0;
+    transform: rotate(135deg); /* aponta pra esquerda (fechar) */
+    transition: transform 0.3s ease;
+}
+
+.sidebar-open .toggle-icon {
+    transform: rotate(-45deg); /* seta pra direita */
+}
+
+.toggle-btn {
+    position: absolute;
+    top: 20px;
+    right: 12px; /* DENTRO da sidebar */
+    width: 28px;
+    height: 28px;
+    background: #020617;
+    border: 2px solid #334155;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    transition: right 0.3s ease, transform 0.3s ease;
+    padding: 0;
+}
+
+
+.sidebar.collapsed .toggle-btn {
+    right: 2px;
+}
+
+.toggle-btn:hover {
+    background: #1e293b;
+    transform: scale(1.1);
+}
+
+.toggle-icon {
+    font-size: 16px;
+    font-weight: bold;
+    transition: transform 0.3s ease;
+    line-height: 1;
+}
+
+.sidebar.collapsed .toggle-icon {
+    transform: rotate(-45deg);
+}
+
+
+/* Estilos dos links da sidebar */
+.sidebar nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar nav li {
+    margin-bottom: 5px;
+}
+
+.sidebar nav a {
+    color: #e2e8f0;
+    text-decoration: none;
+    padding: 12px 20px;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    position: relative;
+}
+
+.sidebar nav a:hover {
+    background: #1e293b;
+    color: #fff;
+}
+
+/* Ícones para os links */
+.sidebar nav a .icon {
+    margin-right: 12px;
+    min-width: 24px;
+    text-align: center;
+    font-size: 18px;
+    transition: margin 0.3s ease;
+}
+
+/* Texto dos links */
+.sidebar nav a .link-text {
+    transition: opacity 0.3s ease, width 0.3s ease;
+    opacity: 1;
+    width: auto;
+    overflow: hidden;
+}
+
+/* Quando recolhido - mostra apenas ícones */
+.sidebar.collapsed nav a {
+    padding: 12px;
+    justify-content: center;
+}
+
+.sidebar.collapsed nav a .icon {
+    margin-right: 0;
+    font-size: 20px;
+}
+
+.sidebar.collapsed nav a .link-text {
+    opacity: 0;
+    width: 0;
+    display: none;
+}
+
+/* Tooltip para links quando recolhido (opcional) */
+.sidebar.collapsed nav a::after {
+    content: attr(title);
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #020617;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease;
+    z-index: 1000;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    margin-left: 10px;
+}
+
+.sidebar.collapsed nav a:hover::after {
+    opacity: 1;
+    visibility: visible;
+}
 
 /**Área do Centro**/
 .content {
     flex: 1;
     padding: 32px;
     background: #f8fafc;
+    transition: margin-left 0.3s ease;
+    overflow-y: auto;
+    width: 100%;
 }
-/****/
+
+/* Ajustes quando sidebar está recolhida */
+.sidebar.collapsed ~ .content {
+    margin-left: 70px;
+}
+
+.btn-login {
+    background: linear-gradient(90deg, #6366f1, #22d3ee);
+    border: none;
+    color: #020617;
+    font-weight: 600;
+    padding: 8px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-login:hover {
+    opacity: 0.9;
+    color: #020617;
+}
+
+/* Ajuste para telas muito pequenas */
+@media (max-width: 480px) {
+    .sidebar {
+        width: 200px;
+    }
+    
+    .sidebar.collapsed {
+        width: 60px;
+    }
+    
+    .sidebar.collapsed ~ .content {
+        margin-left: 60px;
+    }
+    
+    .toggle-btn {
+        right: -10px;
+        width: 20px;
+        height: 20px;
+    }
+    
+    .toggle-icon {
+        font-size: 14px;
+    }
+}
