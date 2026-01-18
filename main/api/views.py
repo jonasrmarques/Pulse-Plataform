@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import LoginSerializer
+from django.contrib.auth import login
 
 class LoginAPIView(APIView):
     authentication_classes = []
@@ -13,6 +14,9 @@ class LoginAPIView(APIView):
         serializer.is_valid(raise_exception=True)
 
         user = serializer.validated_data["user"]
+        
+        login(request, user)
+        
         refresh = RefreshToken.for_user(user)
 
         return Response({
