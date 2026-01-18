@@ -1,10 +1,47 @@
-<!-- main/partials/topbar.html -->
 <header class="topbar">
     <h1>Pulse</h1>
+
     <div class="topbar-actions">
-        <!-- Altere o link para usar data-bs-toggle -->
-        <button class="btn-login" data-bs-toggle="modal" data-bs-target="#loginModal">
-            Entrar
-        </button>
+        {% if not user.is_authenticated %}
+            <button
+                class="btn-login"
+                data-bs-toggle="modal"
+                data-bs-target="#loginModal"
+            >
+                Entrar
+            </button>
+        {% else %}
+            <div class="dropdown">
+                <button
+                    class="btn btn-light dropdown-toggle user-dropdown"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                >
+                    <i class="bi bi-person-circle"></i>
+                </button>
+
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                        <a class="dropdown-item" href="#">
+                            <i class="bi bi-person me-2"></i>
+                            Perfil
+                        </a>
+                    </li>
+
+                    <li><hr class="dropdown-divider"></li>
+
+                    <button
+                        class="dropdown-item text-danger"
+                        type="button"
+                        onclick="handleLogout(event)"
+                    >
+                        <i class="bi bi-box-arrow-right me-2"></i>
+                        Sair
+                    </button>
+
+                </ul>
+            </div>
+        {% endif %}
     </div>
 </header>

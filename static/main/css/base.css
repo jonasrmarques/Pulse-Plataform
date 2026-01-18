@@ -16,6 +16,16 @@ body {
     transition: margin-left 0.3s ease;
 }
 
+.user-dropdown {
+    border: none;
+    background: transparent;
+    font-size: 1.6rem;
+}
+
+.user-dropdown:focus {
+    box-shadow: none;
+}
+
 
 .app-container {
     display: flex;

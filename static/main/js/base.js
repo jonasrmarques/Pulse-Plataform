@@ -1,3 +1,16 @@
+function getCSRFToken() {
+    const name = "csrftoken=";
+    const decodedCookie = decodeURIComponent(document.cookie);
+    const cookies = decodedCookie.split(";");
+
+    for (let cookie of cookies) {
+        cookie = cookie.trim();
+        if (cookie.startsWith(name)) {
+            return cookie.substring(name.length);
+        }
+    }
+    return null;
+}
 document.addEventListener('DOMContentLoaded', function() {
     const sidebar = document.getElementById('sidebar');
     const toggleBtn = document.getElementById('toggleSidebar');
@@ -52,3 +65,29 @@ document.addEventListener('DOMContentLoaded', function() {
         resizeTimer = setTimeout(handleResponsive, 250);
     });
 });
+
+async function handleLogout(event) {
+    event.preventDefault();
+
+    console.log("clicou no logout"); // 👈 DEBUG
+
+    const refresh = localStorage.getItem("refresh_token");
+
+    try {
+        await fetch("/api/logout/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + localStorage.getItem("access_token"),
+                "X-CSRFToken": getCSRFToken()
+            },
+            body: JSON.stringify({ refresh })
+        });
+    } catch (e) {
+        console.error("Erro no logout", e);
+    } finally {
+        localStorage.clear();
+        window.location.replace("/");
+    }
+}
+
